@@ -67,6 +67,9 @@ func onMessage(s *discordgo.Session, m *discordgo.MessageCreate) {
 		case "copy", "cp":
 			cmdCopy(m, args)
 		}
+
+		// delete invoke command
+		session.ChannelMessageDelete(m.ChannelID, m.ID)
 	} else {
 		// store latest message
 		latestMessagesLock.Lock()
@@ -87,7 +90,7 @@ func cmdMove(m *discordgo.Message, args string) {
 }
 
 // cmdCopy copies message to another channel.
-
+// !copy [message ID, or URL] <channel>
 func cmdCopy(m *discordgo.Message, args string) {
 	doCopy(m, args)
 }
@@ -145,6 +148,17 @@ func doCopy(m *discordgo.Message, args string) (copiedMessage *discordgo.Message
 	// TODO: support multiple embed!
 	if _, err := session.ChannelMessageSendEmbed(targetChannel, clone); err != nil {
 		log.Printf("Failed to send clone embed for message %s (%s): %v\n", lmsg.ID, lmsg.Content, err)
+		return
+	}
+	if len(lmsg.Attachments) > 0 {
+		urls := []string{}
+		for _, a := range lmsg.Attachments {
+			urls = append(urls, a.URL)
+		}
+		log.Println(urls)
+		if _, err := session.ChannelMessageSend(targetChannel, strings.Join(urls, "\n")); err != nil {
+			log.Printf("Failed to send attachments: %v\n", err)
+		}
 	}
 
 	return lmsg
@@ -164,23 +178,6 @@ func getCloneEmbed(m *discordgo.Message) (*discordgo.MessageEmbed, error) {
 		Description: m.Content,
 		Timestamp:   string(m.Timestamp),
 		Color:       rand.Intn(0x1000000),
-	}
-
-	// NEW! handle media.
-	// TODO: is this work?
-	if len(m.Attachments) > 0 {
-		mediaURLs := []string{}
-		for _, a := range m.Attachments {
-			mediaURLs = append(mediaURLs, a.URL)
-		}
-
-		embed.Fields = []*discordgo.MessageEmbedField{
-			{
-				Name:   "Attachments",
-				Value:  strings.Join(mediaURLs, "\n"),
-				Inline: false,
-			},
-		}
 	}
 
 	return embed, nil
