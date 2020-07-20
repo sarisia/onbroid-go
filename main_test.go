@@ -18,7 +18,7 @@ func TestGetMessageID(t *testing.T) {
 		t.Run(tc.name, func(t *testing.T) {
 			got := getMessageID(tc.input)
 			if got != tc.want {
-				t.Errorf("want: %s, got: %s\n", tc.want, got)
+				t.Errorf("input: %s, want: %s, got: %s\n", tc.input, tc.want, got)
 			}
 		})
 	}
@@ -40,7 +40,7 @@ func TestGetChannelID(t *testing.T) {
 		t.Run(tc.name, func(t *testing.T) {
 			got := getChannelID(tc.input)
 			if got != tc.want {
-				t.Errorf("want: %s, got: %s\n", tc.want, got)
+				t.Errorf("input: %s, want: %s, got: %s\n", tc.input, tc.want, got)
 			}
 		})
 	}
