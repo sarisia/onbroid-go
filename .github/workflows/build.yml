@@ -20,11 +20,9 @@ jobs:
       ASSET_NAME: onbroid-go-${{ matrix.goos }}-amd64
     steps:
     - uses: actions/checkout@v1
-      with:
-        fetch-depth: 1
     - uses: actions/setup-go@v1
       with:
-        go-version: 1.13.x
+        go-version: 1.14.x
     - run: mkdir bin
     - name: build
       env:
