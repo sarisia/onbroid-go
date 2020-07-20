@@ -16,7 +16,7 @@ var commandPrefix = "!"
 var latestMessages = map[string]*discordgo.Message{}
 var latestMessagesLock = sync.RWMutex{}
 var messageIDRegex = regexp.MustCompile(`^[\d]+$`)
-var channelIDRegex = regexp.MustCompile(`[\d]+`)
+var channelIDRegex = regexp.MustCompile(`^(?:<#)?([\d]+)>?`)
 
 var session *discordgo.Session
 
@@ -197,6 +197,10 @@ func getMessageID(raw string) string {
 	return ""
 }
 
-func getChannelID(raw string) string {
-	return channelIDRegex.FindString(raw)
+func getChannelID(raw string) (res string) {
+	match := channelIDRegex.FindStringSubmatch(raw)
+	if len(match) >= 2 {
+		return match[1]
+	}
+	return
 }
