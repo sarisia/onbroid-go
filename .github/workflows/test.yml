@@ -1,0 +1,25 @@
+name: test
+on:
+  push:
+  pull_request:
+env:
+  TARGET: onbroid-go
+
+jobs:
+  test:
+    name: Test
+    runs-on: ubuntu-latest
+    steps:
+    - uses: actions/checkout@v1
+    - uses: actions/setup-go@v1
+      with:
+        go-version: 1.14.x
+    - run: go test -v
+    - name: discord notify
+      if: always()
+      uses: sarisia/actions-status-discord@v1
+      with:
+        webhook: ${{ secrets.DISCORD_WEBHOOK }}
+        status: ${{ job.status }}
+        job: ${{ env.TARGET }} - ${{ matrix.goos }}
+        
